@@ -41,23 +41,15 @@ class PDFGeneratorTool(BaseTool):
             os.makedirs(self.output_dir)
     
     def _run(self, report_data, report_name=None):
-        """
-        Generate a PDF report.
-        
-        Args:
-            report_data (str): JSON string containing the report data
-            report_name (str, optional): Name for the PDF report. 
-                                         Defaults to "modem_analysis_report_{timestamp}.pdf"
-        
-        Returns:
-            str: Path to the generated PDF file
-        """
+        """Generate a PDF report."""
         try:
             # Parse the JSON report data
             if isinstance(report_data, str):
                 try:
                     data = json.loads(report_data)
+                    print(f"Successfully parsed report data JSON")
                 except json.JSONDecodeError:
+                    print(f"Could not parse as JSON, treating as plain text")
                     data = {"content": report_data}
             else:
                 data = report_data
@@ -72,6 +64,7 @@ class PDFGeneratorTool(BaseTool):
                 report_name += ".pdf"
             
             # Create the PDF
+            print(f"Creating PDF report with name: {report_name}")
             pdf = ModemReportPDF()
             
             # Add report content
@@ -79,13 +72,18 @@ class PDFGeneratorTool(BaseTool):
             
             # Save the PDF
             output_path = os.path.join(self.output_dir, report_name)
+            print(f"Saving PDF to: {output_path}")
             pdf.output(output_path)
             
+            print(f"PDF report successfully generated at: {output_path}")
             return f"PDF report generated: {output_path}"
         
         except Exception as e:
+            print(f"Error generating PDF: {str(e)}")
+            import traceback
+            traceback.print_exc()
             return f"Error generating PDF report: {str(e)}"
-    
+        
     def _add_report_content(self, pdf, data):
         """Add content to the PDF report."""
         # Add title page
@@ -231,9 +229,14 @@ class PDFGeneratorTool(BaseTool):
             for i, v in enumerate(values):
                 plt.text(i, v + 0.5, f"{v:.2f}", ha='center')
             
-            # Save to BytesIO
-            buffer = BytesIO()
+            # Save as separate file
+            chart_filename = f"latency_chart_{datetime.now().strftime('%Y%m%d_%H%M%S')}.png"
+            chart_path = os.path.join(self.output_dir, chart_filename)
             plt.tight_layout()
+            plt.savefig(chart_path)
+            
+            # Save to BytesIO for PDF embedding
+            buffer = BytesIO()
             plt.savefig(buffer, format='png')
             plt.close()
             
@@ -360,9 +363,9 @@ class ModemReportPDF(FPDF):
     def __init__(self):
         super().__init__()
         self.set_auto_page_break(auto=True, margin=15)
-        self.add_font('DejaVu', '', 'DejaVuSansCondensed.ttf', uni=True)
-        self.add_font('DejaVu', 'B', 'DejaVuSansCondensed-Bold.ttf', uni=True)
-        
+        #self.add_font('DejaVu', '', 'DejaVuSansCondensed.ttf', uni=True)
+        #self.add_font('DejaVu', 'B', 'DejaVuSansCondensed-Bold.ttf', uni=True)
+
         # Set default font
         self.set_font('Arial', '', 11)
         
