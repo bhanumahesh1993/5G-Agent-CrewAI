@@ -1,0 +1,26 @@
+2025-03-26 04:28:41 - modem_intelligence - INFO - Starting 5G Modem Intelligence Crew analysis
+2025-03-26 04:28:41 - modem_intelligence - INFO - PCAP file: data/free5gc-compose.pcap
+2025-03-26 04:28:41 - modem_intelligence - INFO - Output directory: output
+2025-03-26 04:28:41 - modem_intelligence - INFO - Using model: gpt-3.5-turbo
+2025-03-26 04:28:41 - modem_intelligence - ERROR - Error during analysis: 1 validation error for Agent
+  Value error, Required function parameter 'data' not found in args_schema [type=value_error, input_value={'role': 'Network Monitor...r=False)], 'verbose': 1}, input_type=dict]
+    For further information visit https://errors.pydantic.dev/2.10/v/value_error
+Traceback (most recent call last):
+  File "/Users/tcpwave/Desktop/Bhanu/qualcomm/src/main.py", line 96, in main
+    crew = create_modem_intelligence_crew(verbose=config["verbose_level"])
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/tcpwave/Desktop/Bhanu/qualcomm/src/crews/modem_intelligence_crew.py", line 56, in create_modem_intelligence_crew
+    network_agent = create_network_monitoring_agent(verbose=verbose_level)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/tcpwave/Desktop/Bhanu/qualcomm/src/agents/network_monitoring_agent.py", line 41, in create_network_monitoring_agent
+    return create_base_agent(
+           ^^^^^^^^^^^^^^^^^^
+  File "/Users/tcpwave/Desktop/Bhanu/qualcomm/src/agents/base_agent.py", line 42, in create_base_agent
+    agent = Agent(
+            ^^^^^^
+  File "/Users/tcpwave/Desktop/Bhanu/qualcomm/src/5g/lib/python3.11/site-packages/pydantic/main.py", line 214, in __init__
+    validated_self = self.__pydantic_validator__.validate_python(data, self_instance=self)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+pydantic_core._pydantic_core.ValidationError: 1 validation error for Agent
+  Value error, Required function parameter 'data' not found in args_schema [type=value_error, input_value={'role': 'Network Monitor...r=False)], 'verbose': 1}, input_type=dict]
+    For further information visit https://errors.pydantic.dev/2.10/v/value_error

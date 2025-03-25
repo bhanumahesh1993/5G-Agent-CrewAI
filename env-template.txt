@@ -1,0 +1,14 @@
+# OpenAI API key for CrewAI agents
+OPENAI_API_KEY=your_openai_api_key_here
+
+# Default model choice (e.g., gpt-3.5-turbo, gpt-4)
+OPENAI_MODEL_NAME=gpt-3.5-turbo
+
+# Path to input PCAP file
+PCAP_FILE_PATH=data/free5gc-compose.pcap
+
+# Output directory for reports
+OUTPUT_DIR=output
+
+# Set verbosity level (0, 1, 2)
+VERBOSE_LEVEL=1

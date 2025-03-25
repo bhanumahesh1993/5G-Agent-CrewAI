@@ -1,0 +1,2 @@
+# Crews package initialization
+from .modem_intelligence_crew import create_modem_intelligence_crew
