@@ -21,7 +21,7 @@ This project uses a multi-agent system with CrewAI to analyze 5G modem performan
 
 
 
-## Components
+## 5 Agents
 
 The system consists of five specialized AI agents:
 
