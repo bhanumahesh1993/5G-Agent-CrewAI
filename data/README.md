@@ -22,6 +22,11 @@ Example:
 python src/main.py --pcap data/my_custom_capture.pcap
 ```
 
+
+## pcap Data Sources:
+https://github.com/DLTeamTUC/5GDatasets/tree/main
+https://github.com/telekom/5g-trace-visualizer/tree
+
 ## Sample Data
 
 If you don't have a real 5G network capture, you can use publicly available sample 5G PCAP files for testing purposes. Some sources for sample files include:
