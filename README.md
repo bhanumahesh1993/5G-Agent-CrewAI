@@ -13,6 +13,15 @@ This project uses a multi-agent system with CrewAI to analyze 5G modem performan
 ## High Level Design - Check in HLD folder for more details
 ![HLD](HLD.png)
 
+## Crew Design and Responsibilities
+
+| Crew Name | Primary Use Cases | Tools Used | Agents Involved | Data Sources |
+|-----------|-------------------|------------|-----------------|--------------|
+| **Network Monitoring Crew** | - Real-time metric collection<br>- Performance analysis<br>- Initial anomaly flagging | - PCAP Analyzer<br>- Metrics Extractor<br>- Time Series Analysis | - Network Monitoring Agent | - Kafka Telemetry Stream<br>- PCAP Files |
+| **Anomaly Detection Crew** | - Anomaly classification<br>- Root cause diagnosis<br>- Impact assessment | - Anomaly Detector<br>- ML Models<br>- Diagnostic Analyzer | - Anomaly Detection Agent<br>- ML/DL Models | - Processed Metrics<br>- Historical Anomalies |
+| **Optimization Crew** | - Parameter tuning<br>- Self-healing strategies<br>- Protocol optimization | - Parameter Tuning Tool<br>- Optimization Simulator<br>- LLM for strategy creation | - Optimization Agent | - Anomaly Diagnoses<br>- Performance Metrics<br>- Configuration Database |
+| **User Experience Crew** | - UX impact analysis<br>- Personalized optimizations<br>- Predictive issue prevention | - User Pattern Analyzer<br>- Application Profiler<br>- Persona Mapper | - User Experience Agent | - User Behavior Data<br>- Application Requirements<br>- Network Conditions |
+| **Reporting Crew** | - Technical report generation<br>- Executive summaries<br>- Visualization creation | - PDF Generator<br>- Data Visualization<br>- Natural Language Generator | - Reporting Agent | - All Analysis Results<br>- Historical Data<br>- Optimization Recommendations |
 
 
 ## Terminal
