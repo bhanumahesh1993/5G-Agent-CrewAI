@@ -3,7 +3,7 @@
 An AI-powered system for analyzing and optimizing 5G modem performance using CrewAI.
 
 
-![5G-Agent](5G-Agent.jpg)
+
 
 
 ## Overview
@@ -31,8 +31,8 @@ The system consists of five specialized AI agents:
 
 1. Clone the repository:
    ```
-   git clone https://github.com/your-username/modem-intelligence-crew.git
-   cd modem-intelligence-crew
+   git clone https://github.com/bhanumahesh1993/5G-Agent-CrewAI.git
+   cd 5G-Agent-CrewAI
    ```
 
 2. Install dependencies:
@@ -54,7 +54,7 @@ The system consists of five specialized AI agents:
 Run the main script:
 
 ```
-python src/main.py
+python3 run_analysis.py
 ```
 
 The system will:
