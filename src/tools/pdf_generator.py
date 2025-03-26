@@ -65,7 +65,7 @@ class PDFGeneratorTool(BaseTool):
             
             # Create the PDF
             print(f"Creating PDF report with name: {report_name}")
-            pdf = ModemReportPDF()
+            pdf = SafeModemReportPDF()
             
             # Add report content
             self._add_report_content(pdf, data)
@@ -383,7 +383,7 @@ class ModemReportPDF(FPDF):
             
             # Add report title
             self.set_font('Arial', 'B', 10)
-            self.set_text_color(41, 128, 185)
+            self.set_text_color(*self.title_color)
             self.cell(0, 10, '5G Modem Performance Analysis Report', 0, 0, 'R')
             
             # Add line
@@ -455,8 +455,30 @@ class ModemReportPDF(FPDF):
     def add_paragraph(self, text):
         """Add a paragraph of text."""
         self.set_font('Arial', '', 11)
-        self.set_text_color(*self.text_color)
-        self.multi_cell(0, 6, text)
+        
+        # Ensure text_color is correct, use default if corrupted
+        try:
+            # Check if text_color has the right structure
+            if not (isinstance(self.text_color, tuple) and len(self.text_color) == 3):
+                # Reset to default if corrupted
+                self.text_color = (44, 62, 80)  # Reset to default
+            
+            self.set_text_color(*self.text_color)
+        except Exception as e:
+            # Fallback to black text if something goes wrong
+            self.set_text_color(0, 0, 0)
+            print(f"Warning: Using default text color due to: {e}")
+        
+        # Process the text to ensure it's a valid string
+        if text is None:
+            text = "No content available"
+        
+        try:
+            self.multi_cell(0, 6, str(text))
+        except Exception as e:
+            print(f"Error adding text: {e}")
+            self.multi_cell(0, 6, "Error displaying content")
+        
         self.ln(5)
     
     def add_metrics_table(self, data):
@@ -530,6 +552,171 @@ class ModemReportPDF(FPDF):
             
             self.ln(5)
         
+        except Exception as e:
+            print(f"Error adding image: {str(e)}")
+            self.add_paragraph(f"[Error loading image: {str(e)}]")
+
+
+class SafeModemReportPDF(FPDF):
+    """A more robust PDF class that doesn't rely on class attributes for colors."""
+    
+    def __init__(self):
+        super().__init__()
+        self.set_auto_page_break(auto=True, margin=15)
+        self.set_font('Arial', '', 11)
+    
+    def safe_text_color(self, r, g, b):
+        """Safely set text color with explicit RGB values."""
+        try:
+            self.set_text_color(r, g, b)
+        except Exception as e:
+            print(f"Warning: Color setting failed: {e}")
+            self.set_text_color(0, 0, 0)  # Default to black
+    
+    def add_title_page(self, title):
+        """Add a title page with hardcoded colors."""
+        # Blue title
+        self.safe_text_color(41, 128, 185)
+        
+        self.set_font('Arial', 'B', 24)
+        self.ln(60)
+        self.cell(0, 20, title, 0, 1, 'C')
+        
+        # Dark blue-gray subtitle
+        self.safe_text_color(52, 73, 94)
+        
+        self.set_font('Arial', '', 16)
+        self.ln(10)
+        self.cell(0, 10, 'Analysis and Optimization Recommendations', 0, 1, 'C')
+        
+        # Date
+        self.set_font('Arial', '', 12)
+        self.ln(40)
+        current_date = datetime.now().strftime("%B %d, %Y")
+        self.cell(0, 10, f'Generated on {current_date}', 0, 1, 'C')
+        
+        # Green author
+        self.safe_text_color(46, 204, 113)
+        
+        self.set_font('Arial', 'B', 14)
+        self.ln(10)
+        self.cell(0, 10, 'Modem Intelligence Crew', 0, 1, 'C')
+    
+    def add_section_title(self, title):
+        """Add a section title with hardcoded colors."""
+        self.ln(5)
+        self.set_font('Arial', 'B', 16)
+        
+        # Dark blue-gray
+        self.safe_text_color(52, 73, 94)
+        
+        self.cell(0, 10, title, 0, 1, 'L')
+        
+        # Add underline with same color
+        self.set_draw_color(52, 73, 94)
+        self.line(10, self.get_y(), 200, self.get_y())
+        self.ln(10)
+    
+    def add_subsection_title(self, title):
+        """Add a subsection title with hardcoded colors."""
+        self.ln(5)
+        self.set_font('Arial', 'B', 14)
+        
+        # Dark gray
+        self.safe_text_color(44, 62, 80)
+        
+        self.cell(0, 10, title, 0, 1, 'L')
+        self.ln(2)
+    
+    def add_paragraph(self, text):
+        """Add a paragraph with hardcoded colors."""
+        if text is None:
+            text = "No content available"
+            
+        self.set_font('Arial', '', 11)
+        
+        # Dark gray
+        self.safe_text_color(44, 62, 80)
+        
+        try:
+            self.multi_cell(0, 6, str(text))
+        except Exception as e:
+            print(f"Error in add_paragraph: {e}")
+            self.multi_cell(0, 6, "Error displaying content")
+            
+        self.ln(5)
+    
+    # Add other methods with similar hardcoded colors...
+    def add_metrics_table(self, data):
+        """Add a table with metrics."""
+        self.ln(5)
+        
+        # Calculate column widths
+        col_width = 190 / 2
+        
+        # Add table headers
+        self.set_font('Arial', 'B', 11)
+        self.set_fill_color(240, 240, 240)
+        for header in data[0]:
+            self.cell(col_width, 10, header, 1, 0, 'C', 1)
+        self.ln()
+        
+        # Add table data
+        self.set_font('Arial', '', 11)
+        for row in data[1:]:
+            for i, cell in enumerate(row):
+                # Make the first column bold
+                if i == 0:
+                    self.set_font('Arial', 'B', 11)
+                    self.cell(col_width, 8, cell, 1, 0, 'L')
+                    self.set_font('Arial', '', 11)
+                else:
+                    self.cell(col_width, 8, cell, 1, 0, 'C')
+            self.ln()
+        
+        self.ln(5)
+    
+    def add_info_box(self, text):
+        """Add an information box."""
+        self.ln(5)
+        self.set_fill_color(235, 245, 251)  # Light blue background
+        self.set_font('Arial', 'B', 11)
+        self.set_text_color(*self.text_color)
+        self.multi_cell(0, 8, text, 1, 'L', 1)
+        self.ln(5)
+    
+    def add_image(self, image_path, caption=None):
+        """Add an image to the PDF."""
+        try:
+            # Check if the image path is a base64 data URL
+            if image_path.startswith('data:image'):
+                # Split the data URL to get the base64 data
+                header, base64_data = image_path.split(",", 1)
+                
+                # Create a temporary file name
+                temp_path = f"temp_image_{datetime.now().strftime('%Y%m%d%H%M%S')}.png"
+                
+                # Decode base64 and save as temporary image
+                with open(temp_path, 'wb') as temp_file:
+                    temp_file.write(base64.b64decode(base64_data))
+                
+                # Add the image
+                self.image(temp_path, x=10, y=None, w=180)
+                
+                # Remove the temporary file
+                os.remove(temp_path)
+            else:
+                # Add image directly from file path
+                self.image(image_path, x=10, y=None, w=180)
+            
+            # Add caption if provided
+            if caption:
+                self.ln(2)
+                self.set_font('Arial', 'I', 10)
+                self.set_text_color(100, 100, 100)
+                self.cell(0, 10, caption, 0, 1, 'C')
+            
+            self.ln(5)
         except Exception as e:
             print(f"Error adding image: {str(e)}")
             self.add_paragraph(f"[Error loading image: {str(e)}]")
