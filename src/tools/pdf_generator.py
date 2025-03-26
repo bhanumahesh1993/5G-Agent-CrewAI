@@ -40,6 +40,49 @@ class PDFGeneratorTool(BaseTool):
         if not os.path.exists(self.output_dir):
             os.makedirs(self.output_dir)
     
+    def _parse_log_content(self, log_content):
+        """
+        Parse log content with headings into a structured format.
+        
+        Args:
+            log_content (str): Content from log file with markdown-style headings
+            
+        Returns:
+            dict: Structured data with sections from the log
+        """
+        result = {
+            "summary": "",
+            "sections": []
+        }
+        
+        # Extract the executive summary and sections
+        if "**Executive Summary:**" in log_content:
+            content_parts = log_content.split("**Executive Summary:**", 1)
+            if len(content_parts) > 1:
+                summary_and_sections = content_parts[1].strip()
+                
+                # Find all sections using the pattern "**Section Title:**"
+                import re
+                section_matches = re.findall(r'\*\*(.*?):\*\*(.*?)(?=\*\*|$)', summary_and_sections, re.DOTALL)
+                
+                if section_matches:
+                    # The first match will be the summary and the text before the first section
+                    result["summary"] = section_matches[0][1].strip()
+                    
+                    # The rest are actual sections
+                    for i in range(1, len(section_matches)):
+                        section_title = section_matches[i][0] + ":"
+                        section_content = section_matches[i][1].strip()
+                        result["sections"].append({
+                            "title": section_title,
+                            "content": section_content
+                        })
+                else:
+                    # If no sections were found, use all content as summary
+                    result["summary"] = summary_and_sections.strip()
+        
+        return result
+
     def _run(self, report_data, report_name=None):
         """Generate a PDF report."""
         try:
@@ -49,8 +92,9 @@ class PDFGeneratorTool(BaseTool):
                     data = json.loads(report_data)
                     print(f"Successfully parsed report data JSON")
                 except json.JSONDecodeError:
-                    print(f"Could not parse as JSON, treating as plain text")
-                    data = {"content": report_data}
+                    print(f"Could not parse as JSON, treating as structured log content")
+                    # Use the log content parser
+                    data = self._parse_log_content(report_data)
             else:
                 data = report_data
             
@@ -98,15 +142,22 @@ class PDFGeneratorTool(BaseTool):
             pdf.add_paragraph(data["summary"])
         else:
             pdf.add_paragraph("This report provides a comprehensive analysis of 5G modem performance metrics, "
-                             "including latency, throughput, signal strength, and identified anomalies. "
-                             "The analysis is based on network packet data and provides recommendations "
-                             "for optimizing modem performance.")
+                            "including latency, throughput, signal strength, and identified anomalies. "
+                            "The analysis is based on network packet data and provides recommendations "
+                            "for optimizing modem performance.")
+        
+        # Add sections from log content if available
+        if "sections" in data and isinstance(data["sections"], list):
+            for section in data["sections"]:
+                pdf.add_page()
+                pdf.add_section_title(section["title"].replace(":", ""))
+                pdf.add_paragraph(section["content"])
         
         # Add performance metrics section
-        pdf.add_page()
-        pdf.add_section_title("Performance Metrics")
-        
         if "metrics" in data:
+            pdf.add_page()
+            pdf.add_section_title("Performance Metrics")
+            
             metrics = data["metrics"]
             
             # Add latency metrics
@@ -197,6 +248,26 @@ class PDFGeneratorTool(BaseTool):
             else:
                 pdf.add_paragraph("No specific recommendations available.")
         
+        # Add sections from parsed log structure
+        if "log_sections" in data and data["log_sections"]:
+            sections = data["log_sections"]
+            
+            # Performance Highlights
+            if sections.get("performance_highlights"):
+                pdf.add_page()
+                pdf.add_section_title("Performance Highlights")
+                pdf.add_paragraph(sections["performance_highlights"])
+            
+            # Key Anomalies
+            if sections.get("anomalies"):
+                pdf.add_page()
+                pdf.add_section_title("Key Anomalies and Root Causes")
+                
+                for i, anomaly in enumerate(sections["anomalies"], 1):
+                    pdf.add_subsection_title(f"{i}. {anomaly['name']}")
+                    if anomaly.get("causes"):
+                        pdf.add_paragraph(f"Potential causes: {', '.join(anomaly['causes'])}")
+        
         # Add conclusion
         pdf.add_page()
         pdf.add_section_title("Conclusion")
@@ -205,9 +276,9 @@ class PDFGeneratorTool(BaseTool):
             pdf.add_paragraph(data["conclusion"])
         else:
             pdf.add_paragraph("This report has provided a comprehensive analysis of the 5G modem performance "
-                             "based on the available network data. By implementing the recommended optimizations, "
-                             "modem performance can be significantly improved, leading to better user experience "
-                             "and more reliable connectivity.")
+                            "based on the available network data. By implementing the recommended optimizations, "
+                            "modem performance can be significantly improved, leading to better user experience "
+                            "and more reliable connectivity.")
     
     def _generate_latency_chart(self, latency_data):
         """Generate a chart for latency metrics."""

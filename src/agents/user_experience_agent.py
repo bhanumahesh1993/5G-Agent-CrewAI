@@ -1,5 +1,6 @@
 from .base_agent import create_base_agent
 from crewai_tools import SerperDevTool
+import os
 
 def create_user_experience_agent(tools=None, allow_delegation=True, verbose=None):
     """
@@ -35,8 +36,15 @@ def create_user_experience_agent(tools=None, allow_delegation=True, verbose=None
     
     # Create standard tools if none provided
     if tools is None:
+        # Get Serper API key from environment variables
+        serper_api_key = os.getenv("SERPER_API_KEY")
+        
+        if not serper_api_key:
+            print("WARNING: SERPER_API_KEY environment variable not found. Web search will not work correctly.")
+            print("Please add your Serper API key to the .env file.")
+        
         tools = [
-            SerperDevTool()  # Using search tool to gather UX best practices and requirements
+            SerperDevTool(api_key=serper_api_key)  # Using search tool with API key from environment
         ]
     
     # Create and return the agent

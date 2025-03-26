@@ -1,5 +1,6 @@
 from .base_agent import create_base_agent
 from crewai_tools import SerperDevTool
+import os
 
 def create_optimization_agent(tools=None, allow_delegation=True, verbose=None):
     """
@@ -33,8 +34,9 @@ def create_optimization_agent(tools=None, allow_delegation=True, verbose=None):
     
     # Create standard tools if none provided
     if tools is None:
+        serper_api_key = os.getenv("SERPER_API_KEY", "your_serper_api_key_here")
         tools = [
-            SerperDevTool()  # Using search tool to find relevant optimization strategies
+            SerperDevTool(api_key=serper_api_key)  # Using search tool with provided API key
         ]
     
     # Create and return the agent
