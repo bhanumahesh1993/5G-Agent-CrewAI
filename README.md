@@ -54,7 +54,7 @@ The system consists of five specialized AI agents:
 Run the main script:
 
 ```
-python src/main.py
+python3 run_analysis.py
 ```
 
 The system will:
