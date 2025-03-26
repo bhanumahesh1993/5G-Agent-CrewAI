@@ -3,7 +3,7 @@
 An AI-powered system for analyzing and optimizing 5G modem performance using CrewAI.
 
 
-#![5G-Agent](5G-Agent.jpg)
+
 
 
 ## Overview
