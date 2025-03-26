@@ -2,6 +2,10 @@
 
 An AI-powered system for analyzing and optimizing 5G modem performance using CrewAI.
 
+
+![5G-Agent](5G-Agent.jpg)
+
+
 ## Overview
 
 This project uses a multi-agent system with CrewAI to analyze 5G modem performance, detect anomalies, optimize parameters, enhance user experience, and generate insightful reports. The system works with PCAP files to perform offline analysis of network performance.
